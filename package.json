@@ -1,0 +1,12 @@
+{
+  "name": "authservice",
+  "version": "1.0.0",
+  "description": "auth servce",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev":"node src/server.js"
+  },
+  "author": "Ansh Shah",
+  "license": "ISC"
+}
