@@ -1,7 +1,7 @@
 // @ts-check
 
-import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
+import eslint from "@eslint/js";
+import tseslint from "typescript-eslint";
 
 export default tseslint.config(
     eslint.configs.recommended,
@@ -11,9 +11,8 @@ export default tseslint.config(
         ignores: ["build", "node_modules", "eslint.config.mjs"],
     },
     {
-
         rules: {
-            "no-console": 'off'
+            "no-console": "off",
         },
         languageOptions: {
             parserOptions: {
