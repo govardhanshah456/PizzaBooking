@@ -1,8 +1,9 @@
-import express, { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import logger from "./config/logger";
+import express from "express"
 import { HttpError } from "http-errors";
 import authRouter from "./routes/auth";
-
+import "reflect-metadata"
 const app = express();
 
 app.use("/auth", authRouter)
