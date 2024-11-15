@@ -24,8 +24,20 @@ describe("Register Service", () => {
             const response = await request(app).post("/auth/register").send(userData);
             expect(response.headers["content-type"]).toEqual(expect.stringContaining("json"))
         })
+        it("should persist data in db", async () => {
+            const userData = {
+                firstName: "Ansh",
+                lastName: "Shah",
+                email: "a@a.com",
+                password: "secret"
+            }
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            const response = await request(app).post("/auth/register").send(userData);
+
+        })
     })
     describe("missing fields", () => {
 
     })
+
 })
