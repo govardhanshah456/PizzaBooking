@@ -55,6 +55,16 @@ describe("Register Service", () => {
             expect(users[0].lastName).toBe(userData.lastName)
             expect(users[0].email).toBe(userData.email)
         })
+        it("should return id of newly created user", async () => {
+            const userData = {
+                firstName: "Ansh",
+                lastName: "Shah",
+                email: "a@a.com",
+                password: "secret"
+            }
+            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            expect(JSON.parse(response.text)).toHaveProperty('id')
+        })
     })
     describe("missing fields", () => {
 
