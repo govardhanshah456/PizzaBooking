@@ -51,6 +51,9 @@ describe("Register Service", () => {
             const userRepo = connection.getRepository(User);
             const users = await userRepo.find()
             expect(users).toHaveLength(1)
+            expect(users[0].firstName).toBe(userData.firstName)
+            expect(users[0].lastName).toBe(userData.lastName)
+            expect(users[0].email).toBe(userData.email)
         })
     })
     describe("missing fields", () => {
