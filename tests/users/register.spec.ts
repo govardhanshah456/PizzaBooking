@@ -5,6 +5,7 @@ import { DataSource } from "typeorm"
 import { AppDataSource } from "../../src/data-source";
 import { User } from "../../src/entity/User";
 import { truncateTables } from "../utils";
+import { Roles } from "../../src/constants";
 describe("Register Service", () => {
     let connection: DataSource;
 
@@ -13,7 +14,8 @@ describe("Register Service", () => {
     })
 
     afterAll(async () => {
-        await connection.destroy()
+        await connection.dropDatabase();
+        await connection.synchronize()
     })
 
     beforeEach(async () => {
@@ -64,6 +66,19 @@ describe("Register Service", () => {
             }
             const response = await request(app as unknown as App).post("/auth/register").send(userData);
             expect(JSON.parse(response.text)).toHaveProperty('id')
+        })
+        it("should return id of newly created user", async () => {
+            const userData = {
+                firstName: "Ansh",
+                lastName: "Shah",
+                email: "a@a.com",
+                password: "secret"
+            }
+            await request(app as unknown as App).post("/auth/register").send(userData);
+            const userRepo = connection.getRepository(User);
+            const users = await userRepo.find()
+            expect(users[0]).toHaveProperty('role')
+            expect(users[0].role).toBe(Roles.CUSTOMER)
         })
     })
     describe("missing fields", () => {

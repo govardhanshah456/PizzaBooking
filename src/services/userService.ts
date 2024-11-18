@@ -2,6 +2,7 @@ import { Repository } from "typeorm"
 import { User } from "../entity/User"
 import { UserData } from "../types"
 import { Logger } from "winston"
+import { Roles } from "../constants"
 
 export class UserService {
     constructor(private userRepo: Repository<User>) { }
@@ -11,7 +12,8 @@ export class UserService {
                 firstName,
                 lastName,
                 email,
-                password
+                password,
+                role: Roles.CUSTOMER
             })
             logger.info(`User Created Successfully`)
             return user
