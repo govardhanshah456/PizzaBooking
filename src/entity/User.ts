@@ -1,3 +1,4 @@
+
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity()
@@ -12,6 +13,7 @@ export class User {
     lastName: string;
 
     @Column()
+
     email: string;
 
     @Column()
