@@ -9,17 +9,23 @@ app.use(express.json())
 app.use("/auth", authRouter)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
-    logger.error(err.message);
+    logger.error(err);
+    const errors = []
+    for (let i = 0; ; i++) {
+        if (!Object.prototype.hasOwnProperty.call(err, i)) {
+            break;
+        }
+        else {
+            const error = {
+                type: err?.[i]?.name,
+                msg: err?.[i].message,
+            }
+            errors.push(error);
+        }
+    }
     const statusCode = err.statusCode || 500
     res.status(statusCode).json({
-        errors: [
-            {
-                type: err.name,
-                msg: err.message,
-                path: "",
-                location: ""
-            }
-        ]
+        errors: errors
     })
 })
 

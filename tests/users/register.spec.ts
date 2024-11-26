@@ -27,7 +27,7 @@ describe("Register Service", () => {
                 firstName: "Ansh",
                 lastName: "Shah",
                 email: "a@a.com",
-                password: "secret"
+                password: "secretmmi"
             }
             const response = await request(app as unknown as App).post("/auth/register").send(userData);
             expect(response.statusCode).toBe(201)
@@ -37,7 +37,7 @@ describe("Register Service", () => {
                 firstName: "Ansh",
                 lastName: "Shah",
                 email: "a@ab.com",
-                password: "secret"
+                password: "secretmmi"
             }
             const response = await request(app as unknown as App).post("/auth/register").send(userData);
             expect(response.headers["content-type"]).toEqual(expect.stringContaining("json"))
@@ -47,7 +47,7 @@ describe("Register Service", () => {
                 firstName: "Ansh",
                 lastName: "Shah",
                 email: "a@a.com",
-                password: "secret"
+                password: "secretmmi"
             }
             await request(app as unknown as App).post("/auth/register").send(userData);
             const userRepo = connection.getRepository(User);
@@ -62,7 +62,7 @@ describe("Register Service", () => {
                 firstName: "Ansh",
                 lastName: "Shah",
                 email: "a@a.com",
-                password: "secret"
+                password: "secretmmi"
             }
             const response = await request(app as unknown as App).post("/auth/register").send(userData);
             expect(JSON.parse(response.text)).toHaveProperty('id')
@@ -72,7 +72,7 @@ describe("Register Service", () => {
                 firstName: "Ansh",
                 lastName: "Shah",
                 email: "a@a.com",
-                password: "secret"
+                password: "secretmmi"
             }
             await request(app as unknown as App).post("/auth/register").send(userData);
             const userRepo = connection.getRepository(User);
@@ -85,7 +85,7 @@ describe("Register Service", () => {
                 firstName: "Ansh",
                 lastName: "Shah",
                 email: "a@a.com",
-                password: "secret"
+                password: "secretmmi"
             }
             await request(app as unknown as App).post("/auth/register").send(userData);
             const userRepo = connection.getRepository(User);
@@ -98,23 +98,79 @@ describe("Register Service", () => {
                 firstName: "Ansh",
                 lastName: "Shah",
                 email: "a@a.com",
-                password: "secret",
+                password: "secretmmi",
                 role: Roles.CUSTOMER
             }
             await request(app as unknown as App).post("/auth/register").send(userData);
             const response = await request(app as unknown as App).post("/auth/register").send(userData);
             expect(response.statusCode).toBe(400)
         })
-        it("should return 400 email not provided", async () => {
+        it("should return 400 firstName not provided", async () => {
             const userData = {
-                firstName: "Ansh",
+                firstName: "",
                 lastName: "Shah",
                 email: "",
-                password: "secret",
+                password: "secretmmi",
                 role: Roles.CUSTOMER
             }
             const response = await request(app as unknown as App).post("/auth/register").send(userData);
             expect(response.statusCode).toBe(400)
+        })
+        it("should return 400 lastName not provided", async () => {
+            const userData = {
+                firstName: "Ansh",
+                lastName: "",
+                email: "",
+                password: "secretmmi",
+                role: Roles.CUSTOMER
+            }
+            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            expect(response.statusCode).toBe(400)
+        })
+        it("should return 400 password not provided", async () => {
+            const userData = {
+                firstName: "Ansh",
+                lastName: "Shah",
+                email: "",
+                password: "",
+                role: Roles.CUSTOMER
+            }
+            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            expect(response.statusCode).toBe(400)
+        })
+        it("should return 400 password 8 length provided", async () => {
+            const userData = {
+                firstName: "Ansh",
+                lastName: "Shah",
+                email: "",
+                password: "aaa",
+                role: Roles.CUSTOMER
+            }
+            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            expect(response.statusCode).toBe(400)
+        })
+        it("should return 400 invalid email", async () => {
+            const userData = {
+                firstName: "Ansh",
+                lastName: "Shah",
+                email: "aaaaa",
+                password: "aaa",
+                role: Roles.CUSTOMER
+            }
+            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            expect(response.statusCode).toBe(400)
+        })
+        it.only("should return 400 missing email", async () => {
+            const userData = {
+                firstName: "Ansh",
+                lastName: "Shah",
+                password: "aaa",
+                role: Roles.CUSTOMER
+            }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const response: any = await request(app as unknown as App).post("/auth/register").send(userData);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
+            expect(JSON.parse(response.text).errors.length).toBeGreaterThan(0)
         })
     })
     // describe("missing fields", () => {
@@ -128,12 +184,13 @@ describe("Register Service", () => {
                 firstName: "Ansh",
                 lastName: "Shah",
                 email: "rakesh@mern.space      ",
-                password: "secret",
+                password: "secretmmi",
                 role: Roles.CUSTOMER
             }
             await request(app as unknown as App).post("/auth/register").send(userData);
             const userRepo = connection.getRepository(User);
             const users = await userRepo.find()
+            // console.log(users)
             expect(users[0].email).toBe(userData.email.trim())
         })
     })

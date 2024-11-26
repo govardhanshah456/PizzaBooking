@@ -10,6 +10,17 @@ const authRouter = express.Router();
 const userRepo = AppDataSource.getRepository(User)
 const userService = new UserService(userRepo);
 const authController = new AuthController(userService, logger)
-authRouter.post("/register", [body("email").notEmpty().trim()], (req: Request, res: Response, next: NextFunction) => authController.register(req, res, next))
+
+const registerValidationRules = [
+    body("email").notEmpty().trim().isEmail().withMessage("Valid email is required"),
+    body("firstName").notEmpty().withMessage("First name is required").trim(),
+    body("lastName").notEmpty().withMessage("Last name is required").trim(),
+    body("password")
+        .notEmpty()
+        .withMessage("Password is required")
+        .isLength({ min: 8 })
+        .withMessage("Password must be at least 8 characters long"),
+];
+authRouter.post("/register", registerValidationRules, (req: Request, res: Response, next: NextFunction) => authController.register(req, res, next))
 
 export default authRouter
