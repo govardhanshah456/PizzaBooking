@@ -122,4 +122,20 @@ describe("Register Service", () => {
 
     // })
 
+    describe("Fields not in proper ormat", () => {
+        it("should trim email field", async () => {
+            const userData = {
+                firstName: "Ansh",
+                lastName: "Shah",
+                email: "rakesh@mern.space      ",
+                password: "secret",
+                role: Roles.CUSTOMER
+            }
+            await request(app as unknown as App).post("/auth/register").send(userData);
+            const userRepo = connection.getRepository(User);
+            const users = await userRepo.find()
+            expect(users[0].email).toBe(userData.email.trim())
+        })
+    })
+
 })

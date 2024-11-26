@@ -10,6 +10,6 @@ const authRouter = express.Router();
 const userRepo = AppDataSource.getRepository(User)
 const userService = new UserService(userRepo);
 const authController = new AuthController(userService, logger)
-authRouter.post("/register", [body("email").notEmpty()], (req: Request, res: Response, next: NextFunction) => authController.register(req, res, next))
+authRouter.post("/register", [body("email").notEmpty().trim()], (req: Request, res: Response, next: NextFunction) => authController.register(req, res, next))
 
 export default authRouter
