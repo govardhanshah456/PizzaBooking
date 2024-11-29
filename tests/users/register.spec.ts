@@ -6,6 +6,8 @@ import { AppDataSource } from "../../src/data-source";
 import { User } from "../../src/entity/User";
 // import { truncateTables } from "../utils";
 import { Roles } from "../../src/constants";
+import * as utils from "../utils";
+import { RefreshToken } from "../../src/entity/RefreshToken";
 describe("Register Service", () => {
     let connection: DataSource;
 
@@ -160,7 +162,7 @@ describe("Register Service", () => {
             const response = await request(app as unknown as App).post("/auth/register").send(userData);
             expect(response.statusCode).toBe(400)
         })
-        it.only("should return 400 missing email", async () => {
+        it("should return 400 missing email", async () => {
             const userData = {
                 firstName: "Ansh",
                 lastName: "Shah",
@@ -171,6 +173,37 @@ describe("Register Service", () => {
             const response: any = await request(app as unknown as App).post("/auth/register").send(userData);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
             expect(JSON.parse(response.text).errors.length).toBeGreaterThan(0)
+        })
+        it("should validate access and refresh token", async () => {
+            const userData = {
+                firstName: "Ansh",
+                lastName: "Shah",
+                email: "a@a.com",
+                password: "secretmmi"
+            }
+            interface Headers {
+                ['set-cookie']: string[]
+            }
+            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            const cookies = (response.headers as unknown as Headers)['set-cookie'] || []
+            let accessToken: string = "";
+            let refreshToken: string = "";
+            cookies.forEach((cookie) => {
+                if (cookie.startsWith('accessToken=')) {
+                    accessToken = cookie.split(';')[0].split('=')[1];
+                }
+                if (cookie.startsWith('refreshToken=')) {
+                    refreshToken = cookie.split(';')[0].split('=')[1];
+                }
+            })
+            const refreshTokenRepo = AppDataSource.getRepository(RefreshToken)
+            const tokens = await refreshTokenRepo.find()
+            expect(accessToken).not.toBe(null)
+            expect(refreshToken).not.toBe(null)
+            const isValidJwt = utils.isValidJwt
+            expect(isValidJwt(accessToken)).toBeTruthy()
+            expect(isValidJwt(refreshToken)).toBeTruthy()
+            expect(tokens).toHaveLength(1)
         })
     })
     // describe("missing fields", () => {
@@ -190,7 +223,6 @@ describe("Register Service", () => {
             await request(app as unknown as App).post("/auth/register").send(userData);
             const userRepo = connection.getRepository(User);
             const users = await userRepo.find()
-            // console.log(users)
             expect(users[0].email).toBe(userData.email.trim())
         })
     })

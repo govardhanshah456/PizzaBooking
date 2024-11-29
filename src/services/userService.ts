@@ -27,6 +27,7 @@ export class UserService {
                 role: Roles.CUSTOMER
             })
             logger.info(`User Created Successfully`)
+
             return user
         } catch (error) {
             logger.info(`Some Error Ocucred while saving user in db.`)

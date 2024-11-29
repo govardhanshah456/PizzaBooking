@@ -4,7 +4,13 @@ import { UserService } from "../services/userService";
 import { Logger } from "winston";
 import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
-
+import { JwtPayload, sign } from "jsonwebtoken";
+import path from "path";
+import fs from "fs"
+import { Config } from "../config";
+import { refreshTokenService } from "../services/refreshTokenService";
+import { AppDataSource } from "../data-source";
+import { RefreshToken } from "../entity/RefreshToken";
 
 export class AuthController {
     constructor(private userService: UserService, private logger: Logger) { }
@@ -23,6 +29,47 @@ export class AuthController {
 
         try {
             user = await this.userService.create({ firstName, lastName, email, password }, this.logger)
+            const payload: JwtPayload = {
+                sub: String(user.id),
+                role: user.role
+            }
+            let privateKey: Buffer | null = null;
+            try {
+                const keyPath = path.join(path.resolve(), "./keys/private.pem");
+                privateKey = fs.readFileSync(keyPath);
+            } catch (error) {
+                const errorMsg = 'Error while reading private key em file.';
+                this.logger.error(errorMsg)
+                this.logger.error(error)
+                next(createHttpError(500, errorMsg))
+            }
+            const accessToken = sign(payload, privateKey as Buffer, {
+                algorithm: 'RS256',
+                issuer: 'auth-service',
+                expiresIn: '1h'
+            })
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true,
+                sameSite: 'strict',
+                maxAge: 1000 * 60 * 60
+            })
+            this.logger.info("reached upto here-0")
+            const refreshTokenDB = await new refreshTokenService(AppDataSource.getRepository(RefreshToken)).create(user);
+            this.logger.info("reached upto here:")
+            this.logger.info(payload)
+            this.logger.info(Config)
+            const refreshToken = sign(payload, Config.REFRESH_TOKEN_SECRET as string, {
+                algorithm: 'HS256',
+                issuer: 'auth-service',
+                expiresIn: '1y',
+                jwtid: String(refreshTokenDB.id)
+            })
+            this.logger.info("reached upto here-1")
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                sameSite: 'strict',
+                maxAge: 1000 * 60 * 60 * 365
+            })
             this.logger.info(`Sending Response To Client.`)
         } catch (error) {
             this.logger.info(`Error Occured.`)
