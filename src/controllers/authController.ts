@@ -11,9 +11,7 @@ export class AuthController {
     async register(req: RegisterUserRequest, res: Response, next: NextFunction) {
         const resp = validationResult(req);
         if (!resp.isEmpty()) {
-            // console.log(resp.array())
             const error = createHttpError(400, resp.array())
-            // console.log(error)
             next(error)
             return;
         }

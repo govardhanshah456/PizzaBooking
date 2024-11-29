@@ -10,15 +10,19 @@ app.use("/auth", authRouter)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
     logger.error(err);
-    const errors = []
+    const errors: {
+        type: string;
+        msg: string;
+    }[] = []
     for (let i = 0; ; i++) {
         if (!Object.prototype.hasOwnProperty.call(err, i)) {
             break;
         }
         else {
+            const errr: HttpError = err;
             const error = {
-                type: err?.[i]?.name,
-                msg: err?.[i].message,
+                type: errr?.name,
+                msg: errr?.message,
             }
             errors.push(error);
         }
