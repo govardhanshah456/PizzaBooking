@@ -3,10 +3,11 @@ import logger from "./config/logger";
 import express from "express"
 import { HttpError } from "http-errors";
 import authRouter from "./routes/auth";
-import "reflect-metadata"
+
 const app = express();
 app.use(express.json())
 app.use("/auth", authRouter)
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
     logger.error(err);
@@ -19,10 +20,13 @@ app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
             break;
         }
         else {
-            const errr: HttpError = err;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+            const errr: any = (err as any)[i];
+
+            // console.log(errr)
             const error = {
-                type: errr?.name,
-                msg: errr?.message,
+                type: errr?.location,
+                msg: errr?.msg,
             }
             errors.push(error);
         }

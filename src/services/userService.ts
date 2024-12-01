@@ -10,15 +10,18 @@ export class UserService {
     async create({ firstName, lastName, email, password }: UserData, logger: Logger) {
         try {
             const passwordHash = await bcrypt.hash(password, 10)
+            logger.info("Reached upto here, just checking -4")
             const existingUser = await this.userRepo.findOne({
                 where: {
                     email
                 }
             })
+            logger.info("Reached upto here, just checking -3")
             if (existingUser) {
                 const error = createHttpError(400, 'User already exist')
                 throw error
             }
+            logger.info("Reached upto here, just checking -1")
             const user = await this.userRepo.save({
                 firstName,
                 lastName,
@@ -26,6 +29,7 @@ export class UserService {
                 password: passwordHash,
                 role: Roles.CUSTOMER
             })
+            logger.info("Reached upto here, just checking -2")
             logger.info(`User Created Successfully`)
 
             return user

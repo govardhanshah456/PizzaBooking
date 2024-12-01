@@ -1,6 +1,6 @@
 
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm"
-
+import "reflect-metadata"
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
@@ -22,3 +22,5 @@ export class User {
     @Column()
     role: string;
 }
+
+
