@@ -31,5 +31,5 @@ const loginValidationRules = [
 ];
 
 authRouter.post("/register", registerValidationRules, (req: Request, res: Response, next: NextFunction) => authController.register(req, res, next))
-authRouter.post("/login", loginValidationRules, (req: Request, res: Response, next: NextFunction) => authController.)
+authRouter.post("/login", loginValidationRules, (req: Request, res: Response, next: NextFunction) => authController.login(req, res, next))
 export default authRouter
