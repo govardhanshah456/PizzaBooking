@@ -22,6 +22,14 @@ const registerValidationRules = [
         .isLength({ min: 8 })
         .withMessage("Password must be at least 8 characters long"),
 ];
-authRouter.post("/register", registerValidationRules, (req: Request, res: Response, next: NextFunction) => authController.register(req, res, next))
 
+const loginValidationRules = [
+    body("email").notEmpty().trim().isEmail().withMessage("Valid email is required"),
+    body("password")
+        .notEmpty()
+        .withMessage("Password is required")
+];
+
+authRouter.post("/register", registerValidationRules, (req: Request, res: Response, next: NextFunction) => authController.register(req, res, next))
+authRouter.post("/login", loginValidationRules, (req: Request, res: Response, next: NextFunction) => authController.)
 export default authRouter

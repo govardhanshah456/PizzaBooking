@@ -40,4 +40,30 @@ export class UserService {
         }
 
     }
+
+    async getByEmail(email: string, logger: Logger) {
+        try {
+            const existingUser = await this.userRepo.findOne({
+                where: {
+                    email
+                }
+            })
+            return existingUser
+        } catch (error) {
+            logger.info(`Some Error Ocucred while saving user in db.`)
+            logger.error(error)
+            throw error;
+        }
+    }
+
+    async comparePassword(password: string, hashedPassword: string, logger: Logger) {
+
+        try {
+            return await bcrypt.compare(password, hashedPassword)
+        } catch (error) {
+            logger.error("Error Occured While Bcrypt Password verification.")
+            logger.error(error)
+            throw new Error((error as any).message);
+        }
+    }
 }

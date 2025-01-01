@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { RegisterUserRequest } from "../types";
+import { LoginUserData, LoginUserRequest, RegisterUserRequest } from "../types";
 import { UserService } from "../services/userService";
 import { Logger } from "winston";
 import { validationResult } from "express-validator";
@@ -14,6 +14,49 @@ import { RefreshToken } from "../entity/RefreshToken";
 
 export class AuthController {
     constructor(private userService: UserService, private logger: Logger) { }
+    private async processTokens(user: any, next: NextFunction, res: Response) {
+        const payload: JwtPayload = {
+            sub: String(user.id),
+            role: user.role
+        }
+        let privateKey: Buffer | null = null;
+        try {
+            const keyPath = path.join(path.resolve(), "./keys/private.pem");
+            privateKey = fs.readFileSync(keyPath);
+        } catch (error) {
+            const errorMsg = 'Error while reading private key em file.';
+            this.logger.error(errorMsg)
+            this.logger.error(error)
+            next(createHttpError(500, errorMsg))
+        }
+        const accessToken = sign(payload, privateKey as Buffer, {
+            algorithm: 'RS256',
+            issuer: 'auth-service',
+            expiresIn: '1h'
+        })
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60
+        })
+        this.logger.info("reached upto here-0")
+        const refreshTokenDB = await new refreshTokenService(AppDataSource.getRepository(RefreshToken)).create(user);
+        this.logger.info("reached upto here:")
+        this.logger.info(payload)
+        this.logger.info(Config)
+        const refreshToken = sign(payload, Config.REFRESH_TOKEN_SECRET as string, {
+            algorithm: 'HS256',
+            issuer: 'auth-service',
+            expiresIn: '1y',
+            jwtid: String(refreshTokenDB.id)
+        })
+        this.logger.info("reached upto here-1")
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60 * 365
+        })
+    }
     async register(req: RegisterUserRequest, res: Response, next: NextFunction) {
         const resp = validationResult(req);
         if (!resp.isEmpty()) {
@@ -29,47 +72,43 @@ export class AuthController {
 
         try {
             user = await this.userService.create({ firstName, lastName, email, password }, this.logger)
-            const payload: JwtPayload = {
-                sub: String(user.id),
-                role: user.role
+            this.processTokens(user, next, res);
+            this.logger.info(`Sending Response To Client.`)
+        } catch (error) {
+            this.logger.info(`Error Occured.`)
+            next(error);
+            return;
+        }
+        res.status(201).json(user)
+    }
+    async login(req: LoginUserRequest, res: Response, next: NextFunction) {
+        const resp = validationResult(req);
+        if (!resp.isEmpty()) {
+            const error = createHttpError(400, resp.array())
+            next(error)
+            return;
+        }
+        const { email, password } = req.body
+        this.logger.info(`Email->${email}`)
+        let user;
+
+        try {
+            user = await this.userService.getByEmail(email, this.logger);
+            if (!user) {
+                const error = createHttpError(500, "User with this email ID does not exist");
+                next(error);
+                return;
             }
-            let privateKey: Buffer | null = null;
-            try {
-                const keyPath = path.join(path.resolve(), "./keys/private.pem");
-                privateKey = fs.readFileSync(keyPath);
-            } catch (error) {
-                const errorMsg = 'Error while reading private key em file.';
-                this.logger.error(errorMsg)
-                this.logger.error(error)
-                next(createHttpError(500, errorMsg))
+            const passwordVerification = await this.userService.comparePassword(password
+                , user.password,
+                this.logger
+            )
+            if (!passwordVerification) {
+                const error = createHttpError(500, "Incorrect Password.");
+                next(error);
+                return;
             }
-            const accessToken = sign(payload, privateKey as Buffer, {
-                algorithm: 'RS256',
-                issuer: 'auth-service',
-                expiresIn: '1h'
-            })
-            res.cookie('accessToken', accessToken, {
-                httpOnly: true,
-                sameSite: 'strict',
-                maxAge: 1000 * 60 * 60
-            })
-            this.logger.info("reached upto here-0")
-            const refreshTokenDB = await new refreshTokenService(AppDataSource.getRepository(RefreshToken)).create(user);
-            this.logger.info("reached upto here:")
-            this.logger.info(payload)
-            this.logger.info(Config)
-            const refreshToken = sign(payload, Config.REFRESH_TOKEN_SECRET as string, {
-                algorithm: 'HS256',
-                issuer: 'auth-service',
-                expiresIn: '1y',
-                jwtid: String(refreshTokenDB.id)
-            })
-            this.logger.info("reached upto here-1")
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                sameSite: 'strict',
-                maxAge: 1000 * 60 * 60 * 365
-            })
+            this.processTokens(user, next, res)
             this.logger.info(`Sending Response To Client.`)
         } catch (error) {
             this.logger.info(`Error Occured.`)
