@@ -12,17 +12,18 @@ describe("Register Service", () => {
     let connection: DataSource;
 
     beforeAll(async () => {
-        connection = await AppDataSource.initialize()
-    })
+        connection = await AppDataSource.initialize();
+    });
 
     afterAll(async () => {
-        await connection.destroy()
-    })
-
-    beforeEach(async () => {
         await connection.dropDatabase();
-        await connection.synchronize()
-    })
+        await connection.destroy();
+    });
+
+    afterEach(async () => {
+        await connection.dropDatabase();
+        await connection.synchronize();
+    });
     describe("given all fields", () => {
         it("should return 201 status code", async () => {
             const userData = {

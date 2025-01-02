@@ -39,9 +39,7 @@ export class AuthController {
             sameSite: 'strict',
             maxAge: 1000 * 60 * 60
         })
-        this.logger.info("reached upto here-0")
         const refreshTokenDB = await new refreshTokenService(AppDataSource.getRepository(RefreshToken)).create(user);
-        this.logger.info("reached upto here:")
         this.logger.info(payload)
         this.logger.info(Config)
         const refreshToken = sign(payload, Config.REFRESH_TOKEN_SECRET as string, {
@@ -50,7 +48,6 @@ export class AuthController {
             expiresIn: '1y',
             jwtid: String(refreshTokenDB.id)
         })
-        this.logger.info("reached upto here-1")
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             sameSite: 'strict',
@@ -72,7 +69,7 @@ export class AuthController {
 
         try {
             user = await this.userService.create({ firstName, lastName, email, password }, this.logger)
-            this.processTokens(user, next, res);
+            await this.processTokens(user, next, res);
             this.logger.info(`Sending Response To Client.`)
         } catch (error) {
             this.logger.info(`Error Occured.`)
@@ -96,7 +93,7 @@ export class AuthController {
             user = await this.userService.getByEmail(email, this.logger);
             if (!user) {
                 const error = createHttpError(500, "User with this email ID does not exist");
-                next(error);
+                next({ '0': { msg: error.message, type: "Login" } });
                 return;
             }
             const passwordVerification = await this.userService.comparePassword(password
@@ -105,10 +102,10 @@ export class AuthController {
             )
             if (!passwordVerification) {
                 const error = createHttpError(500, "Incorrect Password.");
-                next(error);
+                next({ '0': { msg: error.message, type: "Login" } });
                 return;
             }
-            this.processTokens(user, next, res)
+            await this.processTokens(user, next, res)
             this.logger.info(`Sending Response To Client.`)
         } catch (error) {
             this.logger.info(`Error Occured.`)

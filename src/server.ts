@@ -6,7 +6,7 @@ import { AppDataSource } from "./data-source";
 const startServer = () => {
     const port = Config.PORT;
     try {
-        app.listen(port, () => logger.info("Hello"));
+        app.listen(port, () => logger.info("Hello", port));
 
     } catch (error) {
         console.error(error);
