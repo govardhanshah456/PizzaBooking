@@ -1,4 +1,4 @@
-import { Repository } from "typeorm"
+import { FindOneOptions, Repository } from "typeorm"
 import { User } from "../entity/User"
 import { UserData } from "../types"
 import { Logger } from "winston"
@@ -51,6 +51,22 @@ export class UserService {
             return existingUser
         } catch (error) {
             logger.info(`Some Error Ocucred while saving user in db.`)
+            logger.error(error)
+            throw error;
+        }
+    }
+
+    async getById(id: number, logger: Logger, attributes: any[] = []) {
+        try {
+            const existingUser = await this.userRepo.findOne({
+                where: {
+                    id
+                },
+                ...(attributes.length > 0 && { select: attributes })
+            })
+            return existingUser
+        } catch (error) {
+            logger.info(`Some Error Ocucred while fetching user in db.`)
             logger.error(error)
             throw error;
         }

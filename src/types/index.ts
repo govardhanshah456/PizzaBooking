@@ -8,6 +8,17 @@ export interface LoginUserRequest extends Request {
     body: LoginUserData;
 }
 
+export interface AuthRequest extends Request {
+    auth: {
+        sub: number;
+        role: string;
+    }
+}
+
+export interface AuthCookie {
+    accessToken: string;
+}
+
 export interface LoginUserData {
     email: string;
     password: string;

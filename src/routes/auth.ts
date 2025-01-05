@@ -1,10 +1,12 @@
-import express, { NextFunction, Request, Response } from "express"
+import express, { NextFunction, Request, RequestHandler, Response } from "express"
 import { AuthController } from "../controllers/authController";
 import { UserService } from "../services/userService";
 import { AppDataSource } from "../data-source";
 import { User } from "../entity/User";
 import logger from "../config/logger";
 import { body } from "express-validator";
+import { AuthRequest } from "../types";
+import authMiddleware from "../middlewares/authMiddleware";
 
 const authRouter = express.Router();
 const userRepo = AppDataSource.getRepository(User)
@@ -32,4 +34,5 @@ const loginValidationRules = [
 
 authRouter.post("/register", registerValidationRules, (req: Request, res: Response, next: NextFunction) => authController.register(req, res, next))
 authRouter.post("/login", loginValidationRules, (req: Request, res: Response, next: NextFunction) => authController.login(req, res, next))
+authRouter.get("/me", authMiddleware as RequestHandler, (req: Request, res: Response) => authController.me(req as AuthRequest, res))
 export default authRouter

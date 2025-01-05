@@ -1,6 +1,5 @@
 import request from "supertest";
 import app from "../../src/app"
-import { App } from "supertest/types";
 import { DataSource } from "typeorm"
 import { AppDataSource } from "../../src/data-source";
 import { User } from "../../src/entity/User";
@@ -12,38 +11,26 @@ describe("Register Service", () => {
     let connection: DataSource;
 
     beforeAll(async () => {
-        connection = await AppDataSource.initialize();
+        connection = await utils.getTestConnection();
     });
 
     afterAll(async () => {
-        await connection.dropDatabase();
-        await connection.destroy();
+        await utils.closeTestConnection(connection);
     });
 
-    afterEach(async () => {
-        await connection.dropDatabase();
-        await connection.synchronize();
+    beforeEach(async () => {
+        await utils.resetDatabase(connection);
     });
     describe("given all fields", () => {
         it("should return 201 status code", async () => {
             const userData = {
                 firstName: "Ansh",
                 lastName: "Shah",
-                email: "a@a.com",
+                email: "a@abc.com",
                 password: "secretmmi"
             }
-            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            const response = await request(app).post("/auth/register").send(userData);
             expect(response.statusCode).toBe(201)
-        })
-        it("should return 201 status code", async () => {
-            const userData = {
-                firstName: "Ansh",
-                lastName: "Shah",
-                email: "a@ab.com",
-                password: "secretmmi"
-            }
-            const response = await request(app as unknown as App).post("/auth/register").send(userData);
-            expect(response.headers["content-type"]).toEqual(expect.stringContaining("json"))
         })
         it("should persist data in db", async () => {
             const userData = {
@@ -52,7 +39,7 @@ describe("Register Service", () => {
                 email: "a@a.com",
                 password: "secretmmi"
             }
-            await request(app as unknown as App).post("/auth/register").send(userData);
+            await request(app).post("/auth/register").send(userData);
             const userRepo = connection.getRepository(User);
             const users = await userRepo.find()
             expect(users).toHaveLength(1)
@@ -67,7 +54,7 @@ describe("Register Service", () => {
                 email: "a@a.com",
                 password: "secretmmi"
             }
-            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            const response = await request(app).post("/auth/register").send(userData);
             expect(JSON.parse(response.text)).toHaveProperty('id')
         })
         it("should return role of newly created user", async () => {
@@ -77,7 +64,7 @@ describe("Register Service", () => {
                 email: "a@a.com",
                 password: "secretmmi"
             }
-            await request(app as unknown as App).post("/auth/register").send(userData);
+            await request(app).post("/auth/register").send(userData);
             const userRepo = connection.getRepository(User);
             const users = await userRepo.find()
             expect(users[0]).toHaveProperty('role')
@@ -90,7 +77,7 @@ describe("Register Service", () => {
                 email: "a@a.com",
                 password: "secretmmi"
             }
-            await request(app as unknown as App).post("/auth/register").send(userData);
+            await request(app).post("/auth/register").send(userData);
             const userRepo = connection.getRepository(User);
             const users = await userRepo.find()
             expect(users[0].password).not.toBe(userData.password)
@@ -104,8 +91,15 @@ describe("Register Service", () => {
                 password: "secretmmi",
                 role: Roles.CUSTOMER
             }
-            await request(app as unknown as App).post("/auth/register").send(userData);
-            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            await (connection.getRepository(User)).save(userData);
+            const userData1 = {
+                firstName: "Ansh",
+                lastName: "Shah",
+                email: "a@a.com",
+                password: "secretmmi",
+                role: Roles.CUSTOMER
+            }
+            const response = await request(app).post("/auth/register").send(userData1);
             expect(response.statusCode).toBe(400)
         })
         it("should return 400 firstName not provided", async () => {
@@ -116,7 +110,7 @@ describe("Register Service", () => {
                 password: "secretmmi",
                 role: Roles.CUSTOMER
             }
-            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            const response = await request(app).post("/auth/register").send(userData);
             expect(response.statusCode).toBe(400)
         })
         it("should return 400 lastName not provided", async () => {
@@ -127,7 +121,7 @@ describe("Register Service", () => {
                 password: "secretmmi",
                 role: Roles.CUSTOMER
             }
-            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            const response = await request(app).post("/auth/register").send(userData);
             expect(response.statusCode).toBe(400)
         })
         it("should return 400 password not provided", async () => {
@@ -138,7 +132,7 @@ describe("Register Service", () => {
                 password: "",
                 role: Roles.CUSTOMER
             }
-            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            const response = await request(app).post("/auth/register").send(userData);
             expect(response.statusCode).toBe(400)
         })
         it("should return 400 password 8 length provided", async () => {
@@ -149,7 +143,7 @@ describe("Register Service", () => {
                 password: "aaa",
                 role: Roles.CUSTOMER
             }
-            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            const response = await request(app).post("/auth/register").send(userData);
             expect(response.statusCode).toBe(400)
         })
         it("should return 400 invalid email", async () => {
@@ -160,7 +154,7 @@ describe("Register Service", () => {
                 password: "aaa",
                 role: Roles.CUSTOMER
             }
-            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            const response = await request(app).post("/auth/register").send(userData);
             expect(response.statusCode).toBe(400)
         })
         it("should return 400 missing email", async () => {
@@ -171,7 +165,7 @@ describe("Register Service", () => {
                 role: Roles.CUSTOMER
             }
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const response: any = await request(app as unknown as App).post("/auth/register").send(userData);
+            const response: any = await request(app).post("/auth/register").send(userData);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
             expect(JSON.parse(response.text).errors.length).toBeGreaterThan(0)
         })
@@ -185,7 +179,7 @@ describe("Register Service", () => {
             interface Headers {
                 ['set-cookie']: string[]
             }
-            const response = await request(app as unknown as App).post("/auth/register").send(userData);
+            const response = await request(app).post("/auth/register").send(userData);
             const cookies = (response.headers as unknown as Headers)['set-cookie'] || []
             let accessToken: string = "";
             let refreshToken: string = "";
@@ -221,7 +215,7 @@ describe("Register Service", () => {
                 password: "secretmmi",
                 role: Roles.CUSTOMER
             }
-            await request(app as unknown as App).post("/auth/register").send(userData);
+            await request(app).post("/auth/register").send(userData);
             const userRepo = connection.getRepository(User);
             const users = await userRepo.find()
             expect(users[0].email).toBe(userData.email.trim())

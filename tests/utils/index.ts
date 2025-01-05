@@ -1,4 +1,6 @@
 import { DataSource } from "typeorm"
+import { AppDataSource } from "../../src/data-source";
+import logger from "../../src/config/logger";
 
 export const truncateTables = async (connection: DataSource) => {
     const entities = connection.entityMetadatas;
@@ -18,9 +20,28 @@ export const isValidJwt = (jwt: string): boolean => {
             })
 
         } catch (err) {
-            console.log(err)
+            logger.error(err)
             return false;
         }
     }
     return true
 }
+
+export const getTestConnection = async () => {
+    return await AppDataSource.initialize();
+};
+
+export const closeTestConnection = async (connection: DataSource) => {
+    if (connection && connection.isInitialized) {
+        await connection.destroy();
+        connection = null as unknown as DataSource;
+    }
+};
+
+export const resetDatabase = async (connection: DataSource) => {
+    const conn = connection;
+    await conn.transaction(async () => {
+        await conn.dropDatabase();
+        await conn.synchronize();
+    });
+};

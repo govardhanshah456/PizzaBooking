@@ -9,15 +9,15 @@ const startServer = () => {
         app.listen(port, () => logger.info("Hello", port));
 
     } catch (error) {
-        console.error(error);
+        logger.error(error);
         process.exit(1);
     }
 };
 AppDataSource.initialize()
     .then(() => {
-        console.log("Data Source has been initialized!");
+        logger.info("Data Source has been initialized!");
     })
     .catch((error) => {
-        console.log("Error during Data Source initialization:", error);
+        logger.info("Error during Data Source initialization:", error);
     });
 startServer();

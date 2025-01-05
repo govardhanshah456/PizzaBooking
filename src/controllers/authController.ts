@@ -1,5 +1,5 @@
-import { NextFunction, Response } from "express";
-import { LoginUserData, LoginUserRequest, RegisterUserRequest } from "../types";
+import { NextFunction, Response, Request } from "express";
+import { AuthRequest, LoginUserRequest, RegisterUserRequest } from "../types";
 import { UserService } from "../services/userService";
 import { Logger } from "winston";
 import { validationResult } from "express-validator";
@@ -92,7 +92,7 @@ export class AuthController {
         try {
             user = await this.userService.getByEmail(email, this.logger);
             if (!user) {
-                const error = createHttpError(500, "User with this email ID does not exist");
+                const error = createHttpError(400, "User with this email ID does not exist");
                 next({ '0': { msg: error.message, type: "Login" } });
                 return;
             }
@@ -101,7 +101,7 @@ export class AuthController {
                 this.logger
             )
             if (!passwordVerification) {
-                const error = createHttpError(500, "Incorrect Password.");
+                const error = createHttpError(400, "Incorrect Password.");
                 next({ '0': { msg: error.message, type: "Login" } });
                 return;
             }
@@ -112,6 +112,11 @@ export class AuthController {
             next(error);
             return;
         }
-        res.status(201).json(user)
+        res.status(200).json({ id: user.id })
+    }
+    async me(req: AuthRequest, res: Response) {
+        const { sub: id } = req.auth
+        const user = await this.userService.getById(id, this.logger, ["id", "email"])
+        res.json(user)
     }
 }
