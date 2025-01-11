@@ -54,5 +54,11 @@ describe("User Service", () => {
             // Check if user id matches with registered user
             expect((response.body as Record<string, string>)).not.toHaveProperty("password");
         });
+        it("should return 401 if token is not passed", async () => {
+            const response = await request(app)
+                .get("/auth/me")
+                .send();
+            expect(response.status).toBe(401);
+        });
     })
 })

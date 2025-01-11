@@ -6,6 +6,7 @@ import authRouter from "./routes/auth";
 import cookieParser from "cookie-parser";
 
 const app = express();
+app.use(express.static("public"))
 app.use(cookieParser())
 app.use(express.json())
 app.use("/auth", authRouter)
@@ -33,9 +34,9 @@ app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
             errors.push(error);
         }
     }
-    const statusCode = err.statusCode || 500
+    const statusCode = err.statusCode || err.status || 500
     res.status(statusCode).json({
-        errors: errors
+        errors: [...errors, err?.inner?.message ? err?.inner?.message : '']
     })
 })
 

@@ -7,6 +7,8 @@ import logger from "../config/logger";
 import { body } from "express-validator";
 import { AuthRequest } from "../types";
 import authMiddleware from "../middlewares/authMiddleware";
+import validateRefreshToken from "../middlewares/validateRefreshToken";
+import parseRefreshToken from "../middlewares/parseRefreshToken";
 
 const authRouter = express.Router();
 const userRepo = AppDataSource.getRepository(User)
@@ -35,4 +37,6 @@ const loginValidationRules = [
 authRouter.post("/register", registerValidationRules, (req: Request, res: Response, next: NextFunction) => authController.register(req, res, next))
 authRouter.post("/login", loginValidationRules, (req: Request, res: Response, next: NextFunction) => authController.login(req, res, next))
 authRouter.get("/me", authMiddleware as RequestHandler, (req: Request, res: Response) => authController.me(req as AuthRequest, res))
+authRouter.post("/refresh", validateRefreshToken as RequestHandler, (req: Request, res: Response, next: NextFunction) => authController.refresh(req as AuthRequest, res, next))
+authRouter.post("/logout", [authMiddleware as RequestHandler, parseRefreshToken as RequestHandler], (req: Request, res: Response, next: NextFunction) => authController.logout(req as AuthRequest, res, next))
 export default authRouter

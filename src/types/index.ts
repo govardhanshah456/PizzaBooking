@@ -12,12 +12,27 @@ export interface AuthRequest extends Request {
     auth: {
         sub: number;
         role: string;
+        id?: string;
     }
 }
 
 export interface AuthCookie {
     accessToken: string;
+    refreshToken: string;
 }
+
+export interface IResponseJwtPayload {
+    id: string;
+
+}
+
+
+export const enum ProcessingFor {
+    REGISTER = 'register',
+    LOGIN = 'login',
+    REFRESH_TOKEN = 'refresh_token'
+}
+
 
 export interface LoginUserData {
     email: string;

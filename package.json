@@ -12,7 +12,7 @@
         "lint:check": "eslint .",
         "prepare": "husky",
         "start": "ts-node src/index.ts",
-        "typeorm": "typeorm-ts-node-commonjs"
+        "migration:create": "typeorm-ts-node-esm migration:generate"
     },
     "author": "Ansh Shah",
     "license": "ISC",
@@ -64,6 +64,7 @@
         "jsonwebtoken": "^9.0.2",
         "pg": "^8.4.0",
         "reflect-metadata": "^0.1.13",
+        "rsa-pem-to-jwk": "^1.1.3",
         "typeorm": "0.3.20",
         "winston": "^3.16.0",
         "yup": "^1.4.0"
