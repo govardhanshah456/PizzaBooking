@@ -43,3 +43,8 @@ export interface UserData extends LoginUserData {
     lastName: string;
 
 }
+
+export interface ITenant {
+    name: string;
+    address: string;
+}
