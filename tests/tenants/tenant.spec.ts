@@ -60,6 +60,116 @@ describe("Tenant Service", () => {
         jwks.stop();
     });
 
+    describe("Tenant Validation", () => {
+        it("should reject empty name", async () => {
+            const tenantData = {
+                name: "",
+                address: "123 Main St",
+            };
+
+            const response = await request(app)
+                .post("/tenants")
+                .set("Cookie", [`accessToken=${adminToken};`])
+                .send(tenantData);
+
+            expect(response.status).toBe(400);
+            expect(response.body.errors).toContainEqual(
+                expect.objectContaining({
+                    msg: "Name is required",
+                })
+            );
+        });
+
+        it("should reject name shorter than 2 characters", async () => {
+            const tenantData = {
+                name: "A",
+                address: "123 Main St",
+            };
+
+            const response = await request(app)
+                .post("/tenants")
+                .set("Cookie", [`accessToken=${adminToken};`])
+                .send(tenantData);
+
+            expect(response.status).toBe(400);
+            expect(response.body.errors).toContainEqual(
+                expect.objectContaining({
+                    msg: "Name must be at least 2 characters long",
+                })
+            );
+        });
+
+        it("should reject empty address", async () => {
+            const tenantData = {
+                name: "Test Tenant",
+                address: "",
+            };
+
+            const response = await request(app)
+                .post("/tenants")
+                .set("Cookie", [`accessToken=${adminToken};`])
+                .send(tenantData);
+
+            expect(response.status).toBe(400);
+            expect(response.body.errors).toContainEqual(
+                expect.objectContaining({
+                    msg: "Address is required",
+                })
+            );
+        });
+
+        it("should reject address shorter than 5 characters", async () => {
+            const tenantData = {
+                name: "Test Tenant",
+                address: "123",
+            };
+
+            const response = await request(app)
+                .post("/tenants")
+                .set("Cookie", [`accessToken=${adminToken};`])
+                .send(tenantData);
+
+            expect(response.status).toBe(400);
+            expect(response.body.errors).toContainEqual(
+                expect.objectContaining({
+                    msg: "Address must be at least 5 characters long",
+                })
+            );
+        });
+
+        it("should reject update with invalid data", async () => {
+            // Create a tenant first
+            const tenantRepository = connection.getRepository(Tenant);
+            const savedTenant = await tenantRepository.save({
+                name: "Test Tenant",
+                address: "123 Main St",
+            });
+
+            const updateData = {
+                name: "",
+                address: "123",
+            };
+
+            const response = await request(app)
+                .put(`/tenants/${savedTenant.id}`)
+                .set("Cookie", [`accessToken=${adminToken};`])
+                .send(updateData);
+
+            expect(response.status).toBe(400);
+            expect(response.body.errors).toHaveLength(2);
+            expect(response.body.errors).toContainEqual(
+                expect.objectContaining({
+                    msg: "Name is required",
+                })
+            );
+            expect(response.body.errors).toContainEqual(
+                expect.objectContaining({
+                    msg: "Address must be at least 5 characters long",
+                })
+            );
+        });
+    });
+
     describe("Tenant CRUD Operations", () => {
         it("should create a new tenant (admin only)", async () => {
             const tenantData = {

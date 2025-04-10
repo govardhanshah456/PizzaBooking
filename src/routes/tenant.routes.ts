@@ -2,6 +2,7 @@ import { Router, RequestHandler } from 'express';
 import { TenantController } from '../controllers/tenant.controller';
 import authMiddleware from '../middlewares/authMiddleware';
 import { adminMiddleware } from '../middlewares/adminMiddleware';
+import { tenantValidationRules, validateTenant } from '../middlewares/tenantValidation';
 
 const router = Router();
 const tenantController = new TenantController();
@@ -14,10 +15,25 @@ const updateTenant = tenantController.updateTenant.bind(tenantController);
 const deleteTenant = tenantController.deleteTenant.bind(tenantController);
 
 // Only admin can create, update, and delete tenants
-router.post('/', authMiddleware as RequestHandler, adminMiddleware as RequestHandler, createTenant as RequestHandler);
+router.post('/', 
+    authMiddleware as RequestHandler, 
+    adminMiddleware as RequestHandler,
+    tenantValidationRules,
+    validateTenant,
+    createTenant as RequestHandler
+);
+
 router.get('/', authMiddleware as RequestHandler, getAllTenants as RequestHandler);
 router.get('/:id', authMiddleware as RequestHandler, getTenant as RequestHandler);
-router.put('/:id', authMiddleware as RequestHandler, adminMiddleware as RequestHandler, updateTenant as RequestHandler);
+
+router.put('/:id', 
+    authMiddleware as RequestHandler, 
+    adminMiddleware as RequestHandler,
+    tenantValidationRules,
+    validateTenant,
+    updateTenant as RequestHandler
+);
+
 router.delete('/:id', authMiddleware as RequestHandler, adminMiddleware as RequestHandler, deleteTenant as RequestHandler);
 
 export default router; 
