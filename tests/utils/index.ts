@@ -35,7 +35,8 @@ export const getTestConnection = async () => {
         return connection;
     } catch (error) {
         console.error("Database connection failed:", error);
-        process.exit(1);
+        // process.exit(1);
+        throw error;
     }
 };
 
