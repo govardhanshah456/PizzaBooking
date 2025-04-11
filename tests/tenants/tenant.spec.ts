@@ -6,6 +6,7 @@ import { Tenant } from "../../src/entity/Tenant";
 import { User } from "../../src/entity/User";
 import { Roles } from "../../src/constants";
 import createJWKSMock from "mock-jwks";
+import logger from "../../src/config/logger";
 
 describe("Tenant Service", () => {
     let connection: DataSource;
@@ -23,7 +24,9 @@ describe("Tenant Service", () => {
     });
 
     beforeEach(async () => {
+        logger.info("Starting test");
         jwks.start();
+        logger.info("JWKS started");
         await resetDatabase(connection);
 
         // Create admin and regular user
