@@ -30,7 +30,7 @@ COPY package*.json ./
 RUN npm install --ignore-scripts
 
 # Copy built application from builder stage
-COPY --from=builder /usr/src/app/dist ./
+COPY --from=builder /usr/src/app/src/build ./
 
 # Expose the port the app will run on
 EXPOSE 3000
