@@ -28,10 +28,13 @@ jobs:
         NODE_ENV: test
         # Add your secrets here
         DB_HOST: ${{ secrets.DB_HOST }}
-        DB_USER: ${{ secrets.DB_USER }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+        DB_USERNAME: ${{ secrets.DB_USERNAME }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         DB_NAME: ${{ secrets.DB_NAME }}
-        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
+        JWKS_URI: ${{ secrets.JWKS_URI }}
+        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
 
   deploy:
     needs: test
