@@ -17,6 +17,7 @@ describe("Tenant Service", () => {
     beforeAll(async () => {
         jwks = createJWKSMock("http://127.0.0.1:5908/");
         connection = await getTestConnection();
+        console.log("connection: ", connection)
     });
 
     afterAll(async () => {
