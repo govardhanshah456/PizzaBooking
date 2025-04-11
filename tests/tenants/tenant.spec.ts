@@ -15,10 +15,8 @@ describe("Tenant Service", () => {
     let userToken: string;
 
     beforeAll(async () => {
-        // console.log("beforeAll triggered")
         jwks = createJWKSMock("http://127.0.0.1:5908/");
         connection = await getTestConnection() as DataSource;
-        // console.log("connection: ", connection)
     });
 
     afterAll(async () => {
@@ -26,9 +24,7 @@ describe("Tenant Service", () => {
     });
 
     beforeEach(async () => {
-        // logger.info("Starting test");
         jwks.start();
-        // logger.info("JWKS started");
         await resetDatabase(connection);
 
         // Create admin and regular user
@@ -71,7 +67,6 @@ describe("Tenant Service", () => {
                 name: "",
                 address: "123 Main St",
             };
-            // logger.info("Sending request");
             const response = await request(app)
                 .post("/tenants")
                 .set("Cookie", [`accessToken=${adminToken};`])

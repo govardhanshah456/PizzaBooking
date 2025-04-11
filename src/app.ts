@@ -30,7 +30,6 @@ app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
             const errr: any = (err as any)[i];
 
-            // console.log(errr)
             const error = {
                 type: errr?.location,
                 msg: errr?.msg,
