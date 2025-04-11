@@ -15,7 +15,7 @@ describe("Tenant Service", () => {
     let userToken: string;
 
     beforeAll(async () => {
-        jwks = createJWKSMock("http://localhost:5501/");
+        jwks = createJWKSMock("http://127.0.0.1:5908/");
         connection = await getTestConnection();
     });
 
