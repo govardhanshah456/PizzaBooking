@@ -69,7 +69,7 @@ describe("Tenant Service", () => {
                 name: "",
                 address: "123 Main St",
             };
-
+            logger.info("Sending request");
             const response = await request(app)
                 .post("/tenants")
                 .set("Cookie", [`accessToken=${adminToken};`])
