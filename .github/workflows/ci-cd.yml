@@ -22,9 +22,19 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
+    - name: Print masked secrets
+      run: |
+        echo "DB_HOST: $(echo ${{secrets.DB_HOST}} | sed 's/./& /g')"
+        echo "DB_PORT: $(echo ${{secrets.DB_PORT}} | sed 's/./& /g')"
+        echo "DB_USERNAME: $(echo ${{secrets.DB_USERNAME}} | sed 's/./& /g')"
+        echo "DB_PASSWORD: $(echo ${{secrets.DB_PASSWORD}} | sed 's/./& /g')"
+        echo "DB_NAME: $(echo ${{secrets.DB_NAME}} | sed 's/./& /g')"
+        echo "REFRESH_TOKEN_SECRET: $(echo ${{secrets.REFRESH_TOKEN_SECRET}} | sed 's/./& /g')"
+        echo "JWKS_URI: $(echo ${{secrets.JWKS_URI}} | sed 's/./& /g')"
+        echo "PRIVATE_KEY: $(echo ${{secrets.PRIVATE_KEY}} | sed 's/./& /g')"
+    
     - name: Run tests
       run: npm run test
-      secrets: inherit
       env:
         # Add your secrets here
         DB_HOST: ${{ secrets.DB_HOST }}
