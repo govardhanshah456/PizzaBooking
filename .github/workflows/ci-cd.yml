@@ -24,6 +24,7 @@ jobs:
     
     - name: Run tests
       run: npm run test
+      secrets: inherit
       env:
         # Add your secrets here
         DB_HOST: ${{ secrets.DB_HOST }}
@@ -35,6 +36,10 @@ jobs:
         JWKS_URI: ${{ secrets.JWKS_URI }}
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         NODE_OPTIONS: --dns-result-order=ipv4first
+    
+    - name: Build TypeScript
+      run: npm run build-ts
+      
 
   deploy:
     needs: test
