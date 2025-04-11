@@ -29,7 +29,14 @@ export const isValidJwt = (jwt: string): boolean => {
 
 export const getTestConnection = async () => {
     console.log("AppDataSource called: ")
-    return await AppDataSource.initialize();
+    try {
+        const connection = await AppDataSource.initialize();
+        console.log("connection: ", connection)
+        return connection;
+    } catch (error) {
+        console.log("error: ", error)
+    }
+    
 };
 
 export const closeTestConnection = async (connection: DataSource) => {

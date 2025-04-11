@@ -10,8 +10,8 @@ describe("User Service", () => {
     let jwks: ReturnType<typeof createJWKSMock>;
 
     beforeAll(async () => {
-        jwks = createJWKSMock("http://127.0.0.1:5908/")
-        connection = await getTestConnection();
+        jwks = createJWKSMock("http://0.0.0.0:5501/")
+        connection = await getTestConnection() as DataSource;
     });
 
     afterAll(async () => {
