@@ -47,7 +47,7 @@ jobs:
         NODE_OPTIONS: --dns-result-order=ipv4first
     
     - name: Build TypeScript
-      run: npm run build-ts
+      run: npm run build
       
 
   deploy:
