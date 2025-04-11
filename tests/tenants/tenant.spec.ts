@@ -15,6 +15,7 @@ describe("Tenant Service", () => {
     let userToken: string;
 
     beforeAll(async () => {
+        console.log("beforeAll triggered")
         jwks = createJWKSMock("http://127.0.0.1:5908/");
         connection = await getTestConnection();
         console.log("connection: ", connection)
