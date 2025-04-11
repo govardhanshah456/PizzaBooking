@@ -34,9 +34,9 @@ export const getTestConnection = async () => {
         console.log("connection: ", connection)
         return connection;
     } catch (error) {
-        console.log("error: ", error)
+        console.error("Database connection failed:", error);
+        process.exit(1);
     }
-    
 };
 
 export const closeTestConnection = async (connection: DataSource) => {
