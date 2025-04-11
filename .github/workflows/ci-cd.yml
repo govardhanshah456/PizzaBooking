@@ -25,7 +25,6 @@ jobs:
     - name: Run tests
       run: npm run test
       env:
-        NODE_ENV: test
         # Add your secrets here
         DB_HOST: ${{ secrets.DB_HOST }}
         DB_PORT: ${{ secrets.DB_PORT }}
