@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "test": "cross-env NODE_ENV=test jest --runInBand",
+        "test:coverage": "cross-env NODE_ENV=test jest --coverage --runInBand --collectCoverageFrom=\"src/**/*.ts\" --coveragePathIgnorePatterns=\"src/migrations/.*|src/tests/.*|src/__tests__/.*|src/.*\\.test\\.ts|src/.*\\.spec\\.ts\"",
         "dev": "cross-env NODE_ENV=development nodemon src/server.ts",
         "format:fix": "prettier . --write",
         "format:check": "prettier . --check",
