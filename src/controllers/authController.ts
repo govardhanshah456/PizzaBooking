@@ -22,17 +22,21 @@ export class AuthController {
             lastName: user.lastName,
             email: user.email,
         }
-        let privateKey: Buffer | null = null;
+        let privateKey = '';
         try {
-            const keyPath = path.join(path.resolve(), "./keys/private.pem");
-            privateKey = fs.readFileSync(keyPath);
+            if (!Config.PRIVATE_KEY) {
+                next(createHttpError(500, "SECRET_KEY not found"))
+                return;
+            }
+            privateKey = Config.PRIVATE_KEY;
         } catch (error) {
-            const errorMsg = 'Error while reading private key em file.';
+            const errorMsg = 'Error while reading private key pem file.';
             this.logger.error(errorMsg)
             this.logger.error(error)
             next(createHttpError(500, errorMsg))
+            return;
         }
-        const accessToken = sign(payload, privateKey as Buffer, {
+        const accessToken = sign(payload, privateKey, {
             algorithm: 'RS256',
             issuer: 'auth-service',
             expiresIn: '1h'
