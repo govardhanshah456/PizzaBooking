@@ -15,4 +15,4 @@ export const AppDataSource = new DataSource({
     migrations: ["src/migration/*.ts"],
     subscribers: [],
 })
-console.log("dta source initilized")
+console.log("dta source initilized: ", AppDataSource)
