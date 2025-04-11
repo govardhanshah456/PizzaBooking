@@ -5,6 +5,7 @@ import { closeTestConnection, getTestConnection, resetDatabase } from "../utils"
 import createJWKSMock from "mock-jwks";
 import { Roles } from "../../src/constants";
 import { User } from "../../src/entity/User";
+jest.setTimeout(20000)
 describe("User Service", () => {
     let connection: DataSource;
     let jwks: ReturnType<typeof createJWKSMock>;

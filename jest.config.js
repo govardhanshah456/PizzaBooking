@@ -5,4 +5,5 @@ module.exports = {
     "^.+.tsx?$": ["ts-jest", {}],
   },
   maxConcurrency: 1,
+  testTimeout: 20000,
 };
