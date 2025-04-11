@@ -17,7 +17,7 @@ describe("Tenant Service", () => {
     beforeAll(async () => {
         console.log("beforeAll triggered")
         jwks = createJWKSMock("http://127.0.0.1:5908/");
-        connection = await getTestConnection();
+        connection = await getTestConnection() as DataSource;
         console.log("connection: ", connection)
     });
 

@@ -11,7 +11,7 @@ describe("Register Service", () => {
     let connection: DataSource;
 
     beforeAll(async () => {
-        connection = await utils.getTestConnection();
+        connection = await utils.getTestConnection() as DataSource;
     });
 
     afterAll(async () => {
