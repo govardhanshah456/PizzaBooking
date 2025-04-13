@@ -16,13 +16,14 @@
         "start": "ts-node src/index.ts",
         "migration:generate": "typeorm-ts-node-esm migration:generate",
         "migration:create": "typeorm-ts-node-esm migration:create",
-        "migration:run": "typeorm-ts-node-esm migration:run",
+        "migration:run": "typeorm-ts-node-esm migration:run ",
         "migration:revert": "typeorm-ts-node-esm migration:revert"
     },
     "author": "Ansh Shah",
     "license": "ISC",
     "devDependencies": {
         "@eslint/js": "^9.14.0",
+        "@types/cors": "^2.8.17",
         "@types/eslint__js": "^8.42.3",
         "@types/express": "^5.0.0",
         "@types/http-errors": "^2.0.4",
@@ -60,6 +61,7 @@
         "bcrypt": "^5.1.1",
         "bcryptjs": "^2.4.3",
         "cookie-parser": "^1.4.7",
+        "cors": "^2.8.5",
         "crypto": "^1.0.1",
         "dotenv": "^16.4.5",
         "express": "^4.21.1",

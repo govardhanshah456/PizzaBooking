@@ -103,8 +103,9 @@ export class AuthController {
         try {
             user = await this.userService.getByEmail(email, this.logger);
             if (!user) {
+                this.logger.info(`User with email ${email} not found.`)
                 const error = createHttpError(400, "User with this email ID does not exist");
-                next({ '0': { msg: error.message, type: "Login" } });
+                next({ '0': { msg: error.message, type: "Login" }, statusCode: error.statusCode });
                 return;
             }
             const passwordVerification = await this.userService.comparePassword(password
@@ -113,6 +114,7 @@ export class AuthController {
             )
             if (!passwordVerification) {
                 const error = createHttpError(400, "Incorrect Password.");
+                this.logger.info(error)
                 next({ '0': { msg: error.message, type: "Login" } });
                 return;
             }

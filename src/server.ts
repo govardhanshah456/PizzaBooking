@@ -6,7 +6,7 @@ import { AppDataSource } from "./data-source";
 const startServer = () => {
     const port = Config.PORT;
     try {
-        app.listen(port, () => logger.info("Hello", port));
+        app.listen(port, () => logger.info(`Hello ${port}`));
 
     } catch (error) {
         logger.error(error);
@@ -14,8 +14,9 @@ const startServer = () => {
     }
 };
 AppDataSource.initialize()
-    .then(() => {
+    .then(async () => {
         logger.info("Data Source has been initialized!");
+        await AppDataSource.runMigrations()
     })
     .catch((error) => {
         logger.info("Error during Data Source initialization:", error);
