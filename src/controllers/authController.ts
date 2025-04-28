@@ -39,7 +39,7 @@ export class AuthController {
         const accessToken = sign(payload, privateKey, {
             algorithm: 'RS256',
             issuer: 'auth-service',
-            expiresIn: '1h'
+            expiresIn: '1m'
         })
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
@@ -120,16 +120,17 @@ export class AuthController {
             }
             await this.processTokens(user, next, res, ProcessingFor.LOGIN);
             this.logger.info(`Sending Response To Client.`)
+            // res.status(200).json(user)
         } catch (error) {
             this.logger.info(`Error Occured.`)
             next(error);
             return;
         }
-        res.status(200).json({ id: user.id })
+        res.status(200).json(user)
     }
     async me(req: AuthRequest, res: Response) {
         const { sub: id } = req.auth
-        const user = await this.userService.getById(id, this.logger, ["id", "email"])
+        const user = await this.userService.getById(id, this.logger)
         res.json(user)
     }
     async refresh(req: AuthRequest, res: Response, next: NextFunction) {

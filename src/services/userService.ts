@@ -62,7 +62,11 @@ export class UserService {
                 where: {
                     id
                 },
-                ...(attributes.length > 0 && { select: attributes })
+                ...(attributes.length > 0 && { select: attributes }),
+                relations:{
+                    tenant: true,
+
+                }
             })
             return existingUser
         } catch (error) {
