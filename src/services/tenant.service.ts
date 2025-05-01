@@ -1,6 +1,7 @@
 import { AppDataSource } from '../data-source';
 import { Tenant } from '../entity/Tenant';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
+import { TenantParams } from '../types';
 
 export class TenantService {
     private tenantRepository: Repository<Tenant>;
@@ -18,8 +19,31 @@ export class TenantService {
         return await this.tenantRepository.findOne({ where: { id } });
     }
 
-    async getAllTenants(): Promise<Tenant[]> {
-        return await this.tenantRepository.find();
+    async getAllTenants(queryParams: TenantParams): Promise<{
+          data: Tenant[];
+          totalItems: number;
+          currentPage: number;
+          totalPages: number;
+          limit: number;
+        }> {
+        const { q, currentPage:page = 1, perPage:limit = 6, sortBy:sort = 'id', sortOrder:order = 'ASC' } = queryParams;
+        const skip = (page - 1) * limit;
+        const take = limit;
+        const where = q ? { name: ILike(`%${q}%`) } : {};
+        const orderBy = { [sort]: order };
+        const tenants = await this.tenantRepository.findAndCount({
+            where,
+            skip,
+            take,
+            order: orderBy,
+        });
+        return {
+            data: tenants[0],
+            totalItems: tenants[1],
+            currentPage: page,
+            totalPages: Math.ceil(tenants[1] / limit),
+            limit: take,
+        }
     }
 
     async updateTenant(id: number, tenantData: Partial<Tenant>): Promise<Tenant | null> {

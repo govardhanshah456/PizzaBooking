@@ -16,6 +16,14 @@ export interface AuthRequest extends Request {
     }
 }
 
+export interface TenantParams {
+    q?: string;
+    currentPage?: number;
+    perPage?: number;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+}
+
 export interface AuthCookie {
     accessToken: string;
     refreshToken: string;

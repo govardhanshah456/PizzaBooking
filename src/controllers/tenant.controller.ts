@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { TenantService } from '../services/tenant.service';
 import logger from '../config/logger';
+import { TenantParams } from '../types';
 
 export class TenantController {
     private tenantService: TenantService;
@@ -34,7 +35,8 @@ export class TenantController {
 
     async getAllTenants(req: Request, res: Response) {
         try {
-            const tenants = await this.tenantService.getAllTenants();
+            const queryParams: TenantParams = req.query;
+            const tenants = await this.tenantService.getAllTenants(queryParams);
             res.json(tenants);
         } catch (error) {
             logger.error('Failed to get tenants:', error);
