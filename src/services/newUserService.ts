@@ -27,66 +27,49 @@ export class UserService {
     }
 
     async findAll(
-        tenantId?: number,
-        limit: number = 6,
-        offset: number = 0,
-        queryParams?: Record<string, any>
-      ): Promise<{
-        data: User[];
-        totalItems: number;
-        currentPage: number;
-        totalPages: number;
-        limit: number;
-      }> {
-        const { q, sortBy = 'id', sortOrder = 'ASC', role, status } = queryParams || {};
-      
-        const qb = this.userRepository.createQueryBuilder('user')
-          .leftJoinAndSelect('user.tenant', 'tenant');
-      
-        if (tenantId) {
-          qb.andWhere('tenant.id = :tenantId', { tenantId });
-        }
-      
-        if (q) {
-          qb.andWhere(
-            '(user.firstName LIKE :q OR user.lastName LIKE :q OR user.email LIKE :q)',
-            { q: `%${q}%` }
-          );
-        }
-      
-        if (role) {
-          qb.andWhere('user.role LIKE :role', { role: `%${role}%` });
-        }
-      
-        // if (status) {
-        //   qb.andWhere('user.status LIKE :status', { status: `%${status}%` });
-        // }
-      
-        qb.orderBy(`user.${sortBy}`, sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC')
-          .skip(offset)
-          .take(limit)
-          .select([
-            'user.id',
-            'user.firstName',
-            'user.lastName',
-            'user.email',
-            'user.role',
-            'tenant.id'
-          ]);
-      
-        const [data, totalItems] = await qb.getManyAndCount();
-      
-        const currentPage = Math.floor(offset / limit) + 1;
-        const totalPages = Math.ceil(totalItems / limit);
-      
-        return {
-          data,
-          totalItems,
-          currentPage,
-          totalPages,
-          limit,
-        };
+      page: number = 1, // change `offset` to `page`
+      limit: number = 6,
+      queryParams?: Record<string, any>
+    ): Promise<{
+      data: User[];
+      totalItems: number;
+      currentPage: number;
+      totalPages: number;
+      limit: number;
+    }> {
+      const { q, sortBy = 'id', sortOrder = 'ASC', role, status } = queryParams || {};
+    
+      const qb = this.userRepository.createQueryBuilder('user')
+        .leftJoinAndSelect('user.tenant', 'tenant');
+    
+      if (q) {
+        qb.andWhere(
+          '(user.firstName LIKE :q OR user.lastName LIKE :q OR user.email LIKE :q)',
+          { q: `%${q}%` }
+        );
       }
+    
+      if (role) {
+        qb.andWhere('user.role LIKE :role', { role: `%${role}%` });
+      }
+    
+      qb.orderBy(`user.${sortBy}`, sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC')
+        .skip((page) * limit)   // 💥 Fixed offset calculation
+        .take(limit);
+    
+      const [data, totalItems] = await qb.getManyAndCount();
+    
+      const totalPages = Math.ceil(totalItems / limit);
+    
+      return {
+        data,
+        totalItems,
+        currentPage: page,
+        totalPages,
+        limit,
+      };
+    }
+    
       
 
     async findOne(id: number, tenantId?: number): Promise<User | null> {
