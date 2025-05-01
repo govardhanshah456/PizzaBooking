@@ -30,6 +30,7 @@ export class UserService {
         tenantId?: number,
         limit: number = 6,
         offset: number = 0,
+        queryParams?: Record<string, any>
       ): Promise<{
         data: User[];
         totalItems: number;
@@ -37,24 +38,43 @@ export class UserService {
         totalPages: number;
         limit: number;
       }> {
-        const [data, totalItems] = await this.userRepository.findAndCount({
-          where: {
-            tenant: tenantId ? { id: tenantId } : undefined,
-          },
-          take: limit,
-          skip: offset,
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            role: true,
-            tenant: {
-              id: true,
-            },
-          },
-          relations: ['tenant'],
-        });
+        const { q, sortBy = 'id', sortOrder = 'ASC', role, status } = queryParams || {};
+      
+        const qb = this.userRepository.createQueryBuilder('user')
+          .leftJoinAndSelect('user.tenant', 'tenant');
+      
+        if (tenantId) {
+          qb.andWhere('tenant.id = :tenantId', { tenantId });
+        }
+      
+        if (q) {
+          qb.andWhere(
+            '(user.firstName LIKE :q OR user.lastName LIKE :q OR user.email LIKE :q)',
+            { q: `%${q}%` }
+          );
+        }
+      
+        if (role) {
+          qb.andWhere('user.role LIKE :role', { role: `%${role}%` });
+        }
+      
+        // if (status) {
+        //   qb.andWhere('user.status LIKE :status', { status: `%${status}%` });
+        // }
+      
+        qb.orderBy(`user.${sortBy}`, sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC')
+          .skip(offset)
+          .take(limit)
+          .select([
+            'user.id',
+            'user.firstName',
+            'user.lastName',
+            'user.email',
+            'user.role',
+            'tenant.id'
+          ]);
+      
+        const [data, totalItems] = await qb.getManyAndCount();
       
         const currentPage = Math.floor(offset / limit) + 1;
         const totalPages = Math.ceil(totalItems / limit);
