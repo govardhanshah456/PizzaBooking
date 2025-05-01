@@ -7,6 +7,9 @@ export class TenantService {
     private tenantRepository: Repository<Tenant>;
 
     constructor() {
+
+
+        
         this.tenantRepository = AppDataSource.getRepository(Tenant);
     }
 
