@@ -26,23 +26,48 @@ export class UserService {
         return this.userRepository.save(user);
     }
 
-    async findAll(tenantId?: number): Promise<User[]> {
-        return this.userRepository.find({
-            where: {
-                tenant: tenantId ? { id: tenantId } : undefined,
+    async findAll(
+        tenantId?: number,
+        limit: number = 6,
+        offset: number = 0,
+      ): Promise<{
+        data: User[];
+        totalItems: number;
+        currentPage: number;
+        totalPages: number;
+        limit: number;
+      }> {
+        const [data, totalItems] = await this.userRepository.findAndCount({
+          where: {
+            tenant: tenantId ? { id: tenantId } : undefined,
+          },
+          take: limit,
+          skip: offset,
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            role: true,
+            tenant: {
+              id: true,
             },
-            select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                email: true,
-                role: true,
-                tenant: {
-                    id: true,
-                },
-            },
+          },
+          relations: ['tenant'],
         });
-    }
+      
+        const currentPage = Math.floor(offset / limit) + 1;
+        const totalPages = Math.ceil(totalItems / limit);
+      
+        return {
+          data,
+          totalItems,
+          currentPage,
+          totalPages,
+          limit,
+        };
+      }
+      
 
     async findOne(id: number, tenantId?: number): Promise<User | null> {
         return this.userRepository.findOne({

@@ -29,7 +29,9 @@ export class UserController {
     async findAll(req: RequestWithTenant, res: Response) {
         try {
             const tenantId = req.user?.tenantId;
-            const users = await this.userService.findAll(tenantId);
+            const limit = parseInt(req.query.limit as string) || 6;
+            const offset = parseInt(req.query.offset as string) || 0;
+            const users = await this.userService.findAll(tenantId,limit, offset);
             return res.status(200).json(users);
         } catch (error) {
             return res.status(500).json({ message: "Error fetching users", error });
