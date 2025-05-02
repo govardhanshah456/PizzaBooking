@@ -62,7 +62,7 @@ export class UserController {
         try {
             const id = parseInt(req.params.id);
             const userData = req.body;
-            const tenantId = req.user?.tenantId;
+            const tenantId = req.body?.tenantId;
             const user = await this.userService.update(id, userData, tenantId);
             
             if (!user) {

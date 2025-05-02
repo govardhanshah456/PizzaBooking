@@ -68,7 +68,7 @@ export class AuthController {
     async register(req: RegisterUserRequest, res: Response, next: NextFunction) {
         const resp = validationResult(req);
         if (!resp.isEmpty()) {
-            const error = createHttpError(400, resp.array())
+            const error = createHttpError(400, resp.array()[0].msg as string)
             next(error)
             return;
         }
@@ -92,7 +92,7 @@ export class AuthController {
     async login(req: LoginUserRequest, res: Response, next: NextFunction) {
         const resp = validationResult(req);
         if (!resp.isEmpty()) {
-            const error = createHttpError(400, resp.array())
+            const error = createHttpError(400, resp.array()[0].msg as string)
             next(error)
             return;
         }
